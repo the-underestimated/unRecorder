@@ -1,3 +1,12 @@
+import streamlit as st
+import pandas as pd
+import os
+import io
+import functions
+import numpy as np
+import regex as re
+import xlsxwriter
+
 def datePatternAndroid(timeFormat, language): #Date Time Sender Framework to read
     match language:
         case "English":
@@ -163,6 +172,8 @@ def dataProcessing(cleanData, dateTimeSenderPattern, dateOld, dateNew, dateStruc
     cleanData['DATE'] = pd.to_datetime(cleanData['DATE'], format=dateStructure, errors='coerce')
 
     # Filter rows by date range
+    dateOld = pd.to_datetime(dateOld)
+    dateNew = pd.to_datetime(dateNew)
     cleanData = cleanData[(cleanData['DATE'] >= dateOld) & (cleanData['DATE'] <= dateNew)]
     
     # Reset index (optional)
