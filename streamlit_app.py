@@ -14,6 +14,7 @@ with st.sidebar:
 
 st.title("The Un-RECORDER App by Gz.")
 st.write("Unrecord Data Processing Application, run in Streamlit")
+st.warning("Does not work when chat is exported via iPhone (Only Android)")
 
 dataRaw = st.file_uploader("Choose File .txt Export WA")
 oldDate = st.date_input("Stock Opname Start Date: (YYYY/MM/DD)", format='YYYY/MM/DD')
