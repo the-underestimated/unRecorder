@@ -17,7 +17,6 @@ def datePatternAndroid(timeFormat, language): #Date Time Sender Framework to rea
             dateStructure = '%m/%d/%y'
             match timeFormat:
                 case "12h":
-                    #dateTimeSenderPattern = r'(?P<DATE>\d{1,2}/\d{1,2}/\d{2}), (?P<TIME>\d{1,2}:\d{2})\s*(?P<AMPM>(AM|PM)) - (?P<SENDER>.*?):' #NOT TESTED
                     dateTimeSenderPattern = r'(?P<DATE>\d{1,2}/\d{1,2}/\d{2}),\s*(?P<TIME>\d{1,2}:\d{2})\s*(?P<AMPM>AM|PM)\s*-\s*(?P<SENDER>.*?):' #TESTED
                 case "24h":
                     dateTimeSenderPattern = r'(?P<DATE>\d{1,2}/\d{1,2}/\d{2}), (?P<TIME>\d{2}:\d{2}) - (?P<SENDER>.*?):' #TESTED
