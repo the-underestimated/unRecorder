@@ -7,7 +7,6 @@ import numpy as np
 import regex as re
 import xlsxwriter
 from zipfile import ZipFile
-import openpyxl
 from pathlib import Path
 import list_dictionary
 
