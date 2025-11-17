@@ -8,6 +8,11 @@ import xlsxwriter
 
 with st.sidebar:
     st.title("Procedures and Notes")
+    with st.popover("Patch Notes v1.2"):
+        st.write("1. Followed regulated Unrecord Format")
+        st.write("2. Added column PN_DESCRIPTION and CATEGORY. If the report has said data it should pick the data.")
+        st.write("3. Added other columns to follow the format in number 1.")
+        st.write("4. Added embedded data master location.")
     st.subheader("App usage procedures:")
     st.write("1. Upload the txt file from the .zip file after exporting chat (You must pick *include media* when exporting the chat file)")
     st.write("2. Pick the Stock Opname start date and end date (to prevent older Stock Opname data to be extracted), and pick the appropriate WhatsApp language and time format.")
@@ -16,7 +21,8 @@ st.title("The Un-RECORDER App by Gz.")
 st.write("Unrecord Data Processing Application, run in Streamlit")
 st.warning("Does not work when chat is exported via iPhone (Only Android)")
 
-dataRaw = st.file_uploader("Choose File .txt Export WA")
+dataRaw = st.file_uploader("Choose File .txt/.zip Export WA", type=['txt', 'zip'])
+
 oldDate = st.date_input("Stock Opname Start Date: (YYYY/MM/DD)", format='YYYY/MM/DD')
 newDate = st.date_input("Stock Opname End Date: (YYYY/MM/DD)", format='YYYY/MM/DD')
 
@@ -26,10 +32,12 @@ phoneTimeFormat = st.radio("Phone Time Format:", ["24h", "12h"], captions=["Exam
 if dataRaw and oldDate and newDate and waLanguage and phoneTimeFormat:
     if st.button("Olah Data!", type="primary"):  
         try:
-            readData = pd.read_fwf(dataRaw, encoding='utf-8')
+            dataLocation = functions.readLocationData('add_data/Data Master Location.xlsx')
+            
+            dataRaw1 = functions.decideType(dataRaw)
             datePattern, dateTimeSenderPattern, dateStructure = functions.datePatternAndroid(phoneTimeFormat, waLanguage)
-            processedData = functions.readRawData(readData, datePattern)
-            cleanData = functions.dataProcessing(processedData, dateTimeSenderPattern, oldDate, newDate, dateStructure, phoneTimeFormat)
+            processedData = functions.readRawData(dataRaw1, datePattern)
+            cleanData = functions.dataProcessing(processedData, dateTimeSenderPattern, oldDate, newDate, dateStructure, phoneTimeFormat, dataLocation)
 
             
             output = io.BytesIO()

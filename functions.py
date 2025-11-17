@@ -6,6 +6,10 @@ import functions
 import numpy as np
 import regex as re
 import xlsxwriter
+from zipfile import ZipFile
+import openpyxl
+from pathlib import Path
+import list_dictionary
 
 def datePatternAndroid(timeFormat, language): #Date Time Sender Framework to read
     match language:
@@ -121,6 +125,8 @@ def extractAllFromRow(row):
     sn = extractFieldFromRow(row, 'SN')
     remark = extractFieldFromRow(row, 'REMARK')
     remarks = extractFieldFromRow(row, 'REMARKS')
+    pn_description = extractFieldFromRow(row, ' PN DESCRIPTION')
+    category = extractFieldFromRow(row, 'CATEGORY')
     # For BIN and BIN EMRO, look for columns containing them and extract separately
     bin_, binEmro = None, None
     for col in row.index:
@@ -145,7 +151,9 @@ def extractAllFromRow(row):
         'PN': pn,
         'SN': sn,
         'REMARK': remark,
-        'REMARKS': remarks
+        'REMARKS': remarks,
+        'PN DESCRIPTION': pn_description,
+        'CATEGORY': category
     })
 
 def extractQtyAndUom(row):
@@ -156,16 +164,62 @@ def extractQtyAndUom(row):
                 return pd.Series([match.group(2), match.group(3)])
     return pd.Series([None, None])
 
-def dataProcessing(cleanData, dateTimeSenderPattern, dateOld, dateNew, dateStructure, phoneTimeFormat):
+def normalizeFileName(uploadedName: str) -> str:
+    """
+    Removes ' (number)' from an uploaded filename such as:
+    'data (1).txt' -> 'data.txt'
+    """
+    p = uploadedName.name
+
+    # Remove trailing " (number)" using regex
+    cleanedStem = re.sub(r"\s\(\d+\)$", "", p)
+
+    return cleanedStem
+
+def decideType(dataRaw):
+    dataRawFile = dataRaw.name
+    dataRawName = os.path.splitext(dataRawFile)[0]
+    dataRawType = os.path.splitext(dataRawFile)[1]
+    if dataRawType == '.txt':
+        dataRaw1 = readTxtFromTxt(dataRaw)
+    elif dataRawType == '.zip':
+        dataRaw1 = readTxtFromZip(dataRaw)
+    return dataRaw1
+
+def readTxtFromTxt(dataRaw):
+    if dataRaw is not None:
+        dataRaw1 = pd.read_fwf(dataRaw, encoding='utf-8')
+        return dataRaw1
+    
+def readTxtFromZip(dataRaw):
+    dataRawNameNormalized = normalizeFileName(dataRaw)
+    dataTxtInZip = os.path.splitext(dataRawNameNormalized)[0] + ".txt"
+    if dataRaw is not None:
+        zipBytes = io.BytesIO(dataRaw.getvalue())
+        with ZipFile(zipBytes, 'r') as myZip:
+            if dataRawNameNormalized:
+                with myZip.open(dataTxtInZip, "r") as data:
+                # The data is read as bytes, decode it to string for pandas.read_fwf
+                # and wrap it in io.StringIO
+                    decodedData = io.StringIO(data.read().decode('utf-8'))
+                    dataTxt = pd.read_fwf(decodedData, encoding='utf-8')
+                    return dataTxt
+
+def readLocationData(dataLocationRaw):
+    dataLocation = pd.read_excel(dataLocationRaw, skiprows=1)
+    dataLocation = dataLocation[['LOCATION', 'LOCATION DESCRIPTION', 'STATION CODE']]
+    return dataLocation
+
+def dataProcessing(cleanData, dateTimeSenderPattern, dateOld, dateNew, dateStructure, phoneTimeFormat, dataLocation):
     # Extract the values into separate columns
     cleanDataExtracted = cleanData.iloc[:,0].str.extract(dateTimeSenderPattern)
 
     match phoneTimeFormat:
         case '12h':
             # Add the new columns to the original dataframe
-            cleanData[['DATE', 'TIME', 'AM/PM', 'Sender']] = cleanDataExtracted
+            cleanData[['DATE', 'TIME', 'AM/PM', 'SENDER']] = cleanDataExtracted
         case '24h':
-            cleanData[['DATE', 'TIME', 'Sender']] = cleanDataExtracted
+            cleanData[['DATE', 'TIME', 'SENDER']] = cleanDataExtracted
 
     # DATE FILTER
     # Convert DATE column to datetime format (from string like '30/05/2025')
@@ -223,8 +277,20 @@ def dataProcessing(cleanData, dateTimeSenderPattern, dateOld, dateNew, dateStruc
     # Optional: Trim leading/trailing whitespace
     cleanData['MESSAGE RAW'] = cleanData['MESSAGE RAW'].str.strip()
     cleanData = cleanData.drop(columns=[col for col in cleanData.columns if col.startswith('col_')])
-
-    cleanData = cleanData.drop_duplicates(subset=['PN', 'SN', 'REMARK', 'TIME'], keep='first')
+    
+    cleanData = cleanData.rename({'LOC':'LOCATION'}, axis=1)
+    cleanData1 = cleanData.merge(dataLocation, how='left', on='LOCATION')
+    cleanData1['MONTH'] = cleanData1['DATE'].dt.month_name()
+    cleanData1['PIC'] = ''
+    cleanData1['PENANGGUNG JAWAB'] = ''
+    cleanData1['OWNER'] = ''
+    cleanData1['CLASS'] = cleanData1['STATION CODE'].map(list_dictionary.locationClass)
+    cleanData1['PERIODE'] = cleanData1['DATE'].min().strftime('%d') + " - " + cleanData1['DATE'].max().strftime('%d %B %Y')
+    cleanData1['PENYELESAIAN'] = ''
+    cleanData1['STATUS'] = 'OPEN'
+    cleanData = cleanData1.drop_duplicates(subset=['PN', 'SN', 'REMARK', 'TIME'], keep='first')
     cleanData = cleanData.reset_index(drop=True)
+    cleanData['NO'] = cleanData.index + 1
+    cleanData = cleanData[['MONTH', 'PIC', 'PENANGGUNG JAWAB', 'OWNER', 'LOCATION DESCRIPTION', 'CLASS', 'PERIODE', 'STATION CODE', 'NO', 'LOCATION', 'BIN ACTUAL/FOUND', 'PN', 'SN', 'PN DESCRIPTION', 'CATEGORY', 'QTY', 'UOM', 'DATE', 'SENDER', 'REMARK', 'PENYELESAIAN', 'STATUS', 'TIME', 'BIN EMRO']]
     
     return cleanData
