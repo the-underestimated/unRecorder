@@ -39,6 +39,10 @@ if dataRaw and oldDate and newDate and waLanguage and phoneTimeFormat:
             processedData = functions.readRawData(dataRaw1, datePattern)
             cleanData = functions.dataProcessing(processedData, dateTimeSenderPattern, oldDate, newDate, dateStructure, phoneTimeFormat, dataLocation)
 
+            locationExport = cleanData['LOCATION'].mode()
+            periodeExport = cleanData['PERIODE'].mode()
+            st.session_state['locationExport'] = cleanData['STATION CODE'].mode()[0]
+            st.session_state['periodeExport'] = cleanData['PERIODE'].mode()[0]
             
             output = io.BytesIO()
 
@@ -51,10 +55,13 @@ if dataRaw and oldDate and newDate and waLanguage and phoneTimeFormat:
         except Exception as errorCode:
             st.error(f"Error: {errorCode}")
 
+
     if 'outputData' in st.session_state:
         st.download_button(
             label="Download Data Unrecord",
             data=st.session_state['outputData'],
-            file_name="Data Unrecord.xlsx",
+            file_name="Unrecord Data - %s - %s.xlsx" %(
+                st.session_state['locationExport'], 
+                st.session_state['periodeExport']),
             mime="text/csv"
         )

@@ -77,7 +77,7 @@ def readRawData(dataRaw, datePattern): #Reading Raw Data
 
 # EXTRACT DATA
 def extractFieldFromText(text, field):
-    pattern = rf'{field}\b\s*:\s*([^|\n]+)'
+    pattern = rf'{field}\s*:\s*([^|\n]+)'
     match = re.search(pattern, text, re.IGNORECASE)
     if match:
         return match.group(1).strip()
@@ -102,7 +102,7 @@ def extractFieldFromRow(row, field):
     # Find columns in the row that contain the field keyword
     for col in row.index:
         cell = str(row[col])
-        if pd.notna(cell) and re.search(fr'{field}\s*:\s*', cell, re.IGNORECASE):
+        if pd.notna(cell) and re.search(fr'(?<![A-Za-z0-9]){field}\s*:\s*', cell, re.IGNORECASE):
             # Extract field value from this cell only
             if field == 'QTY':
                 # Special case: extract QTY number
@@ -290,6 +290,6 @@ def dataProcessing(cleanData, dateTimeSenderPattern, dateOld, dateNew, dateStruc
     cleanData = cleanData1.drop_duplicates(subset=['PN', 'SN', 'REMARK', 'TIME'], keep='first')
     cleanData = cleanData.reset_index(drop=True)
     cleanData['NO'] = cleanData.index + 1
-    cleanData = cleanData[['MONTH', 'PIC', 'PENANGGUNG JAWAB', 'OWNER', 'LOCATION DESCRIPTION', 'CLASS', 'PERIODE', 'STATION CODE', 'NO', 'LOCATION', 'BIN ACTUAL/FOUND', 'PN', 'SN', 'PN DESCRIPTION', 'CATEGORY', 'QTY', 'UOM', 'DATE', 'SENDER', 'REMARK', 'PENYELESAIAN', 'STATUS', 'TIME', 'BIN EMRO']]
+    cleanData = cleanData[['MONTH', 'PIC', 'PENANGGUNG JAWAB', 'OWNER', 'LOCATION DESCRIPTION', 'CLASS', 'PERIODE', 'STATION CODE', 'NO', 'LOCATION', 'BIN ACTUAL/FOUND', 'PN', 'SN', 'PN DESCRIPTION', 'CATEGORY', 'QTY', 'UOM', 'DATE', 'SENDER', 'REMARK', 'PENYELESAIAN', 'STATUS', 'TIME', 'BIN EMRO', 'MESSAGE RAW']]
     
     return cleanData
