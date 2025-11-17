@@ -32,7 +32,7 @@ phoneTimeFormat = st.radio("Phone Time Format:", ["24h", "12h"], captions=["Exam
 if dataRaw and oldDate and newDate and waLanguage and phoneTimeFormat:
     if st.button("Olah Data!", type="primary"):  
         try:
-            dataLocation = functions.readLocationData('add_data/Data Master Location.xlsx')
+            dataLocation = functions.readLocationData('./add_data/Data Master Location.xlsx')
             
             dataRaw1 = functions.decideType(dataRaw)
             datePattern, dateTimeSenderPattern, dateStructure = functions.datePatternAndroid(phoneTimeFormat, waLanguage)
