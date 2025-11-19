@@ -123,10 +123,10 @@ def extractAllFromRow(row):
     sn = extractFieldFromRow(row, 'SN')
     remark = extractFieldFromRow(row, 'REMARK')
     remarks = extractFieldFromRow(row, 'REMARKS')
-    pn_description = extractFieldFromRow(row, ' PN DESCRIPTION')
     category = extractFieldFromRow(row, 'CATEGORY')
     # For BIN and BIN EMRO, look for columns containing them and extract separately
     bin_, binEmro = None, None
+    pn_description = None
     for col in row.index:
         cell = str(row[col])
         if pd.notna(cell):
@@ -140,6 +140,16 @@ def extractAllFromRow(row):
             if not bin_ and re.search(r'BIN\s*:\s*', cell, re.IGNORECASE):
                 bin_ = extractFieldFromText(cell, 'BIN')
         
+    for col in row.index:
+            cell = str(row[col])
+            if pd.notna(cell):
+                if re.search(r'PN DESCRIPTION\s*:\s*', cell, re.IGNORECASE):
+                    pn_description = extractFieldFromText(cell, 'PN DESCRIPTION')
+                if re.search(r'DESCRIPTION\s*:\s*', cell, re.IGNORECASE):
+                    pn_description = extractFieldFromText(cell, 'DESCRIPTION')
+                if re.search(r'DESC\s*:\s*', cell, re.IGNORECASE):
+                    pn_description = extractFieldFromText(cell, 'DESC')
+
     return pd.Series({
         'LOC': loc,
         'BIN ACTUAL/FOUND': bin_,
