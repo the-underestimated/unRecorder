@@ -111,6 +111,8 @@ def extractFieldFromRow(row, field):
             elif field == 'BIN':
                 # Special case for BIN and BIN EMRO handled outside, skip here
                 continue
+            elif field == 'PN DESCRIPTION':
+                continue
             else:
                 val = extractFieldFromText(cell, field)
                 if val:
