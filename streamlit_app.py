@@ -8,11 +8,13 @@ import xlsxwriter
 
 with st.sidebar:
     st.title("Procedures and Notes")
-    with st.popover("Patch Notes v1.2"):
+    with st.popover("Patch Notes v1.2.5"):
         st.write("1. Followed regulated Unrecord Format")
         st.write("2. Added column PN_DESCRIPTION and CATEGORY. If the report has said data it should pick the data.")
         st.write("3. Added other columns to follow the format in number 1.")
         st.write("4. Added embedded data master location.")
+        st.write("5. Can process duplicated zip file")
+        st.write("6. Fixed time")
     st.subheader("App usage procedures:")
     st.write("1. Upload the txt file from the .zip file after exporting chat (You must pick *include media* when exporting the chat file)")
     st.write("2. Pick the Stock Opname start date and end date (to prevent older Stock Opname data to be extracted), and pick the appropriate WhatsApp language and time format.")

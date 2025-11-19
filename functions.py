@@ -286,6 +286,8 @@ def dataProcessing(cleanData, dateTimeSenderPattern, dateOld, dateNew, dateStruc
     cleanData = cleanData1.drop_duplicates(subset=['PN', 'SN', 'REMARK', 'TIME'], keep='first')
     cleanData = cleanData.reset_index(drop=True)
     cleanData['NO'] = cleanData.index + 1
+    cleanData['TIME'] = pd.to_timedelta(cleanData['TIME'])
+    cleanData['DATE'] = cleanData['DATE'] + cleanData['TIME']
     cleanData = cleanData[['MONTH', 'PIC', 'PENANGGUNG JAWAB', 'OWNER', 'LOCATION DESCRIPTION', 'CLASS', 'PERIODE', 'STATION CODE', 'NO', 'LOCATION', 'BIN ACTUAL/FOUND', 'PN', 'SN', 'PN DESCRIPTION', 'CATEGORY', 'QTY', 'UOM', 'DATE', 'SENDER', 'REMARK', 'PENYELESAIAN', 'STATUS', 'TIME', 'BIN EMRO', 'MESSAGE RAW']]
     
     return cleanData
