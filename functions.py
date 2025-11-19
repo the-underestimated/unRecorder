@@ -139,9 +139,7 @@ def extractAllFromRow(row):
             # If no BIN ACTUAL found, fallback to BIN
             if not bin_ and re.search(r'BIN\s*:\s*', cell, re.IGNORECASE):
                 bin_ = extractFieldFromText(cell, 'BIN')
-    
-    #QTY = extractFieldFromRow(row, 'QTY')
-    
+        
     return pd.Series({
         'LOC': loc,
         'BIN ACTUAL/FOUND': bin_,
@@ -168,15 +166,14 @@ def normalizeFileName(uploadedName: str) -> str:
     'data (1).txt' -> 'data.txt'
     """
     p = uploadedName.name
-
+    name, ext = os.path.splitext(p)
     # Remove trailing " (number)" using regex
-    cleanedStem = re.sub(r"\s\(\d+\)$", "", p)
+    cleanedStem = re.sub(r" \(\d+\)$", "", name)
 
     return cleanedStem
 
 def decideType(dataRaw):
     dataRawFile = dataRaw.name
-    dataRawName = os.path.splitext(dataRawFile)[0]
     dataRawType = os.path.splitext(dataRawFile)[1]
     if dataRawType == '.txt':
         dataRaw1 = readTxtFromTxt(dataRaw)
@@ -283,7 +280,7 @@ def dataProcessing(cleanData, dateTimeSenderPattern, dateOld, dateNew, dateStruc
     cleanData1['PENANGGUNG JAWAB'] = ''
     cleanData1['OWNER'] = ''
     cleanData1['CLASS'] = cleanData1['STATION CODE'].map(list_dictionary.locationClass)
-    cleanData1['PERIODE'] = cleanData1['DATE'].min().strftime('%d') + " - " + cleanData1['DATE'].max().strftime('%d %B %Y')
+    cleanData1['PERIODE'] = cleanData1['DATE'].min().strftime('%d %B') + " - " + cleanData1['DATE'].max().strftime('%d %B %Y')
     cleanData1['PENYELESAIAN'] = ''
     cleanData1['STATUS'] = 'OPEN'
     cleanData = cleanData1.drop_duplicates(subset=['PN', 'SN', 'REMARK', 'TIME'], keep='first')
