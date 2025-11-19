@@ -289,6 +289,6 @@ def dataProcessing(cleanData, dateTimeSenderPattern, dateOld, dateNew, dateStruc
     cleanData['NO'] = cleanData.index + 1
     cleanData['TIME'] = pd.to_timedelta(cleanData['TIME'] + ':00')
     cleanData['DATE'] = cleanData['DATE'] + cleanData['TIME']
-    cleanData = cleanData[['MONTH', 'PIC', 'PENANGGUNG JAWAB', 'OWNER', 'LOCATION DESCRIPTION', 'CLASS', 'PERIODE', 'STATION CODE', 'NO', 'LOCATION', 'BIN ACTUAL/FOUND', 'PN', 'SN', 'PN DESCRIPTION', 'CATEGORY', 'QTY', 'UOM', 'DATE', 'SENDER', 'REMARK', 'PENYELESAIAN', 'STATUS', 'TIME', 'BIN EMRO', 'MESSAGE RAW']]
+    cleanData = cleanData[['MONTH', 'PIC', 'PENANGGUNG JAWAB', 'OWNER', 'LOCATION DESCRIPTION', 'CLASS', 'PERIODE', 'STATION CODE', 'NO', 'LOCATION', 'BIN ACTUAL/FOUND', 'PN', 'SN', 'PN DESCRIPTION', 'CATEGORY', 'QTY', 'UOM', 'DATE', 'SENDER', 'REMARK', 'PENYELESAIAN', 'STATUS', 'BIN EMRO', 'MESSAGE RAW']]
     
     return cleanData
