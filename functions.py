@@ -225,6 +225,7 @@ def dataProcessing(cleanData, dateTimeSenderPattern, dateOld, dateNew, dateStruc
         case '12h':
             # Add the new columns to the original dataframe
             cleanData[['DATE', 'TIME', 'AM/PM', 'SENDER']] = cleanDataExtracted
+            cleanData['TIME'] = cleanData['TIME'] + " " + cleanData['AM/PM']
             cleanData['TIME'] = pd.to_datetime(cleanData['TIME'], format='%I:%M %p').dt.strftime('%H:%M')
         case '24h':
             cleanData[['DATE', 'TIME', 'SENDER']] = cleanDataExtracted
